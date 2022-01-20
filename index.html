@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aimware</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<style>
+
+    .aimware-text {
+        color: #ff4544
+    }
+
+    /* Make the TH unselectable. */
+    th {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+</style>
+
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="aimware-text text-center">aimware</h1>
+            </div>
+        </div>
+
+        <div class="row mb-1">
+            <input type="text" class="form-control" id="search" aria-describedby="search" placeholder="Search">
+        </div>
+
+        <div class="row">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th id="TitleText" scope="col">Title</th>
+                    <th id="AuhtorText" scope="col">Author</th>
+                    <th id="ViewText" scope="col">Views</th>
+                    <th id="RepliesText" scope="col">Replies</th>
+                    <th id="LinkText" scope="col">Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>[Release] Lua loader v2  (400+ scripts) updated 21921</td>
+                    <td>Chicken4676</td>
+                    <td>4201</td>
+                    <td>12</td>
+                    <td>Link</td>
+                  </tr>
+                  <tr>
+                    <td>Fast fakeduck lua</td>
+                    <td>AesomeSauce1112</td>
+                    <td>4201</td>
+                    <td>124</td>
+                    <td>Link</td>
+                  </tr>
+                  <tr>
+                    <td>[Release] Awesome lua pack here </td>
+                    <td>EpicMan</td>
+                    <td>42201</td>
+                    <td>12</td>
+                    <td>Link</td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
+
+    <script>
+    
+    let threads = null
+    
+
+    // Set resonse as json to threads.
+   
+
+
+    // Search the table for the search term, search by Title and Author, Case-insensitive
+    document.getElementById("search").addEventListener("keyup", function(event) {
+        event.preventDefault();
+        var searchTerm = document.getElementById("search").value;
+        var searchTable = document.getElementsByTagName("tbody")[0];
+        var searchRows = searchTable.getElementsByTagName("tr");
+        for (var i = 0; i < searchRows.length; i++) {
+            var searchCells = searchRows[i].getElementsByTagName("td");
+            for (var j = 0; j < searchCells.length; j++) {
+                if (searchCells[j].innerHTML.toUpperCase().indexOf(searchTerm.toUpperCase()) > -1) {
+                    searchRows[i].style.display = "";
+                    break;
+                } else {
+                    searchRows[i].style.display = "none";
+                }
+            }
+        }
+    });
+
+    let asc_rows = {
+        "TitleText": true,
+        "AuhtorText": true,
+        "ViewText": true,
+        "RepliesText": true,
+        "LinkText": true
+    };
+    function sortTable(n, type) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementsByTagName("table")[0];
+        switching = true;
+        /* Make a loop that will continue until
+        no switching has been done: */
+        const sort_column = table.getElementsByTagName("th")[n].id // Get the id of the column we're sorting by.
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            /* Get the two elements you want to compare,
+            one from current row and one from the next: */
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            // Check if the two rows should switch place (alphabetically)
+            if (type === 1){
+                if ((x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase() && asc_rows[sort_column]) || (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase() && !asc_rows[sort_column])) {
+                    // If so, mark as a switch and break the loop:
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+
+            // Check to see if the two rows should switch places (numerically)
+            if (type === 2){
+                if (parseInt(x.innerHTML) > parseInt(y.innerHTML) && asc_rows[sort_column] || parseInt(x.innerHTML) < parseInt(y.innerHTML) && !asc_rows[sort_column]) {
+                    // If so, mark as a switch and break the loop:
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+        asc_rows[sort_column] = !asc_rows[sort_column]
+    }
+
+    document.getElementById("TitleText").onclick = function() {
+        sortTable(0, 1);
+    };
+
+    document.getElementById("AuhtorText").onclick = function() {
+        sortTable(1, 1);
+    };
+
+    document.getElementById("ViewText").onclick = function() {
+        sortTable(2, 2);
+    };
+
+    document.getElementById("RepliesText").onclick = function() {
+        sortTable(3, 2);
+    };
+
+
+    function add_row(title, author, views, replies, link) {
+        var table = document.getElementsByTagName("table")[0];
+        let new_row = table.insertRow(-1);
+        let new_cell = new_row.insertCell(0);
+        new_cell.innerHTML = title;
+
+        new_cell = new_row.insertCell(1);
+        new_cell.innerHTML = author;
+
+        new_cell = new_row.insertCell(2);
+        new_cell.innerHTML = views;
+
+        new_cell = new_row.insertCell(3);
+        new_cell.innerHTML = replies;
+
+        new_cell = new_row.insertCell(4);
+        new_cell.innerHTML = link;
+    }
+
+
+
+    fetch('https://raw.githubusercontent.com/Aimware0/aw_script_search/main/threads.json').then(response => {
+        return response.json()
+    }).then(json => {
+        for (let i = 0; i < 200; i++) {
+            add_row(json[i].title, json[i].author, json[i].views, json[i].replies, json[i].link);
+        }
+    })
+    </script>
+    
+</body>
+</html>
