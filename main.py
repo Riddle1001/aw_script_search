@@ -9,7 +9,7 @@ try:
     with open(r'cookies.json', "r") as f:
         cookies = json.load(f)
 except FileNotFoundError:
-    driver = webdriver.Chrome(executable_path=r"chromedriver.exe")
+    driver = webdriver.Chrome()
     driver.get("https://aimware.net/forum/user/login")
 
     input("Press Enter after logging in...")
@@ -31,36 +31,24 @@ pages = 29
 
 threads = []
 
-def get_thread_info(url):
+def get_usergroup(url):
     r = session.get(url)
     soup = BeautifulSoup(r.text, "html.parser")
-    usergroup_text  = soup.select("section.col-lg-12.section-base.section-content > span")[0].text
-
-    usergroup = {
-        "Adminitrator": "admin",
-        "Super Moderator": "supermod",
-        "Beta Tester": "beta",
-        "Reseller": "reseller",
-        "VIP": "vip",
-        "Registered": "registered",
-        "Banned": "banned"
-    }[usergroup_text] 
-
-    thread_contents = soup.select(".col-lg-12.section-base.section-content")
-    date_string = thread_contents.find_all("div")[5].text
-
-
-
-
-    # return {
-    #     "usergroup": usergroup,
-    #     "date": soup.select("section.col-lg-12.section-base.section-content > span")[1].text
-    #     "date_modified": soup.select("section.col-lg-12.section-base.section-content > span")[2].text
-    # }
-    
-
-
-
+    usergroup = soup.select("section.col-lg-12.section-base.section-content > span")[0].text
+    if usergroup == "Administrator":
+        return "admin"
+    elif usergroup == "Super Moderator":
+        return "supermod"
+    elif usergroup == "Beta Tester":
+        return "beta"
+    elif usergroup == "Reseller":
+        return "reseller"
+    elif usergroup == "VIP":
+        return "vip"
+    elif usergroup == "Registered":
+        return "registered"
+    elif usergroup == "Banned":
+        return "banned"
 
 
 for i in range(pages):
