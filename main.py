@@ -3,7 +3,6 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import json
 
-
 cookies = None
 try:
     with open(r'cookies.json', "r") as f:
@@ -19,7 +18,6 @@ except FileNotFoundError:
 
     with open(r'cookies.json', 'w') as f:
         json.dump(cookies, f)
-
 
 session = requests.Session()
 
@@ -61,7 +59,6 @@ def get_last_page(url):
 threads = []
 already_seen = []
 script_sections = ["https://aimware.net/forum/board/97", "https://aimware.net/forum/board/96"]
-
 
 for script_section in script_sections:
     page_count = get_last_page(script_section)
