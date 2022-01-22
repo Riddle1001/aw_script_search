@@ -4,12 +4,13 @@ from bs4 import BeautifulSoup
 import json
 
 
+
 cookies = None
 try:
     with open(r'cookies.json', "r") as f:
         cookies = json.load(f)
 except FileNotFoundError:
-    driver = webdriver.Chrome()
+    driver = webdriver.Edge()
     driver.get("https://aimware.net/forum/user/login")
 
     input("Press Enter after logging in...")
@@ -27,7 +28,7 @@ for cookie in cookies:
     session.cookies.set(cookie['name'], cookie['value'])
 
 
-pages = 29
+pages = int(input("How many pages to scrape?"))
 
 threads = []
 
@@ -50,8 +51,8 @@ def get_usergroup(url):
     elif usergroup == "Banned":
         return "banned"
 
-
-for i in range(pages):
+already_seen = []
+for i in range(pages + 1):
     print("Page: " + str(i))
     r = session.get("https://aimware.net/forum/board/97/page/" + str(i))
     soup = BeautifulSoup(r.text, "html.parser")
@@ -69,16 +70,19 @@ for i in range(pages):
         thread_replies = row.select(".d-none")[1].get_text()
         thread_views = row.select(".d-none")[2].get_text()
 
-        threads.append({
-            "link": thread_link,
-            "title": thread_title,
-            "author": thread_author,
-            "author_link": thread_author_link,
-            "author_group": thread_author_group,
-            "replies": thread_replies.replace(",", ""),
-            "views": thread_views.replace(",", ""),
-            "thread_count": 1
-        })
+        if thread_title + thread_author not in already_seen:
+            threads.append({
+                "link": thread_link,
+                "title": thread_title,
+                "author": thread_author,
+                "author_link": thread_author_link,
+                "author_group": thread_author_group,
+                "replies": thread_replies.replace(",", ""),
+                "views": thread_views.replace(",", ""),
+                "thread_count": 1
+            })
+            already_seen.append(thread_title + thread_author)
+            
 
 
 thread_count = {}
