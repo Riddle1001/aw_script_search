@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import json
 
 
-
 cookies = None
 try:
     with open(r'cookies.json', "r") as f:
@@ -26,7 +25,6 @@ session = requests.Session()
 
 for cookie in cookies:
     session.cookies.set(cookie['name'], cookie['value'])
-
 
 
 
@@ -59,9 +57,11 @@ def get_last_page(url):
     except IndexError:
         return 1
 
+
 threads = []
 already_seen = []
 script_sections = ["https://aimware.net/forum/board/97", "https://aimware.net/forum/board/96"]
+
 
 for script_section in script_sections:
     page_count = get_last_page(script_section)
@@ -98,7 +98,6 @@ for script_section in script_sections:
                 already_seen.append(thread_title + thread_author)
 
 
-
 thread_count = {}
 for thread in threads:
     if thread["author"] not in thread_count:
@@ -106,9 +105,11 @@ for thread in threads:
     else:
         thread_count[thread["author"]] += 1
 
+
 for thread in threads:
     if thread["author"] in thread_count:
         thread["thread_count"] = thread_count[thread["author"]]
+
 
 with open(r'threads.json', 'w') as f:
     json.dump(threads, f, indent=4)
