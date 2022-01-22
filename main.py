@@ -28,9 +28,7 @@ for cookie in cookies:
     session.cookies.set(cookie['name'], cookie['value'])
 
 
-pages = int(input("How many pages to scrape?"))
 
-threads = []
 
 def get_usergroup(url):
     r = session.get(url)
@@ -51,49 +49,63 @@ def get_usergroup(url):
     elif usergroup == "Banned":
         return "banned"
 
-already_seen = []
-for i in range(pages + 1):
-    print("Page: " + str(i))
-    r = session.get("https://aimware.net/forum/board/97/page/" + str(i))
+
+def get_last_page(url):
+    r = session.get(url)
     soup = BeautifulSoup(r.text, "html.parser")
-    rows = soup.select(".row .forum-thread-list")
-    for row in rows:
-        title = row.find("a")
-        thread_link = "https://aimware.net" + title.get("href")
-        thread_title = title.get_text().replace("\n", "")
+    try:
+        a = soup.select("li.page-item")[4].find("a").get("href")
+        return int(a.split("/")[-1])
+    except IndexError:
+        return 1
 
-        author = row.select(".forum-thread-author")[0]
-        thread_author = author.get_text()
-        thread_author_link = "https://aimware.net" + author.find("a").get("href")
-        thread_author_group = get_usergroup(thread_author_link)
+threads = []
+already_seen = []
+script_sections = ["https://aimware.net/forum/board/97", "https://aimware.net/forum/board/96"]
 
-        thread_replies = row.select(".d-none")[1].get_text()
-        thread_views = row.select(".d-none")[2].get_text()
+for script_section in script_sections:
+    page_count = get_last_page(script_section)
+    print("Scraping " + script_section + "...")
+    for i in range(1, page_count + 1):
+        print("Page: " + str(i))
+        r = session.get(script_section + "/page/" + str(i))
+        soup = BeautifulSoup(r.text, "html.parser")
+        rows = soup.select(".row .forum-thread-list")
+        for row in rows:
+            title = row.find("a")
+            thread_link = "https://aimware.net" + title.get("href")
+            thread_title = title.get_text().replace("\n", "")
 
-        if thread_title + thread_author not in already_seen:
-            threads.append({
-                "link": thread_link,
-                "title": thread_title,
-                "author": thread_author,
-                "author_link": thread_author_link,
-                "author_group": thread_author_group,
-                "replies": thread_replies.replace(",", ""),
-                "views": thread_views.replace(",", ""),
-                "thread_count": 1
-            })
-            already_seen.append(thread_title + thread_author)
-            
+            author = row.select(".forum-thread-author")[0]
+            thread_author = author.get_text()
+            thread_author_link = "https://aimware.net" + author.find("a").get("href")
+            thread_author_group = get_usergroup(thread_author_link)
+
+            thread_replies = row.select(".d-none")[1].get_text()
+            thread_views = row.select(".d-none")[2].get_text()
+
+            if thread_title + thread_author not in already_seen:
+                threads.append({
+                    "link": thread_link,
+                    "title": thread_title,
+                    "author": thread_author,
+                    "author_link": thread_author_link,
+                    "author_group": thread_author_group,
+                    "replies": thread_replies.replace(",", ""),
+                    "views": thread_views.replace(",", ""),
+                    "thread_count": 1
+                })
+                already_seen.append(thread_title + thread_author)
+
 
 
 thread_count = {}
-
 for thread in threads:
     if thread["author"] not in thread_count:
         thread_count[thread["author"]] = 1
     else:
         thread_count[thread["author"]] += 1
 
-# Add thread count to every thread that is connected to the author.
 for thread in threads:
     if thread["author"] in thread_count:
         thread["thread_count"] = thread_count[thread["author"]]
