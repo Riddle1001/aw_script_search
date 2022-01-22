@@ -87,7 +87,7 @@ for script_section in script_sections:
             if thread_title + thread_author not in already_seen:
                 threads.append({
                     "link": thread_link,
-                    "title": thread_title,
+                    "title": thread_title.replace("[Release] ", "").replace("[release] ", ""),
                     "author": thread_author,
                     "author_link": thread_author_link,
                     "author_group": thread_author_group,
